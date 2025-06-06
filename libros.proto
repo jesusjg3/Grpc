@@ -3,12 +3,13 @@ syntax = "proto3";
 package libros;
 
 service LibroService {
-  rpc CrearLibro (Libro) returns (Respuesta);
+  rpc CrearLibro (Libro) returns (Libro);  // <-- Aquí cambiamos Respuesta por Libro
   rpc ObtenerLibro (LibroId) returns (Libro);
   rpc ActualizarLibro (Libro) returns (Respuesta);
   rpc EliminarLibro (LibroId) returns (Respuesta);
   rpc ListarLibros (Vacio) returns (ListaLibros);
 }
+
 
 message Libro {
   int32 id = 1;

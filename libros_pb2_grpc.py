@@ -5,7 +5,7 @@ import warnings
 
 import libros_pb2 as libros__pb2
 
-GRPC_GENERATED_VERSION = '1.71.0'
+GRPC_GENERATED_VERSION = '1.72.1'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -37,7 +37,7 @@ class LibroServiceStub(object):
         self.CrearLibro = channel.unary_unary(
                 '/libros.LibroService/CrearLibro',
                 request_serializer=libros__pb2.Libro.SerializeToString,
-                response_deserializer=libros__pb2.Respuesta.FromString,
+                response_deserializer=libros__pb2.Libro.FromString,
                 _registered_method=True)
         self.ObtenerLibro = channel.unary_unary(
                 '/libros.LibroService/ObtenerLibro',
@@ -65,7 +65,8 @@ class LibroServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def CrearLibro(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """<-- Aquí cambiamos Respuesta por Libro
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -100,7 +101,7 @@ def add_LibroServiceServicer_to_server(servicer, server):
             'CrearLibro': grpc.unary_unary_rpc_method_handler(
                     servicer.CrearLibro,
                     request_deserializer=libros__pb2.Libro.FromString,
-                    response_serializer=libros__pb2.Respuesta.SerializeToString,
+                    response_serializer=libros__pb2.Libro.SerializeToString,
             ),
             'ObtenerLibro': grpc.unary_unary_rpc_method_handler(
                     servicer.ObtenerLibro,
@@ -149,7 +150,7 @@ class LibroService(object):
             target,
             '/libros.LibroService/CrearLibro',
             libros__pb2.Libro.SerializeToString,
-            libros__pb2.Respuesta.FromString,
+            libros__pb2.Libro.FromString,
             options,
             channel_credentials,
             insecure,
