@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>CRUD de Libros</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; }
+    form { margin-bottom: 1em; }
+    input, button { margin: 0.2em; }
+    ul { list-style: none; padding: 0; }
+    li { margin-bottom: 0.5em; }
+    .acciones button { margin-left: 0.5em; }
+  </style>
+</head>
+<body>
+  <h1>Libros</h1>
+  <form id="formLibro">
+    <input type="hidden" id="libroId">
+    <input type="text" id="nombre" placeholder="Nombre" required>
+    <input type="text" id="autor" placeholder="Autor" required>
+    <input type="number" id="anio_publicacion" placeholder="Año de publicación" required>
+    <button type="submit">Guardar</button>
+    <button type="button" onclick="resetForm()">Limpiar</button>
+  </form>
+  <button onclick="listarLibros()">Listar Libros</button>
+  <div id="mensaje" style="margin-bottom:1em;font-weight:bold;"></div>
+  <ul id="libros"></ul>
+
+  <script>
+    function listarLibros() {
+      fetch('http://localhost:5000/libros')
+        .then(res => res.json())
+        .then(data => {
+          const lista = document.getElementById("libros");
+          lista.innerHTML = "";
+          data.forEach(libro => {
+            const item = document.createElement("li");
+            item.innerHTML = `${libro.id}: <b>${libro.nombre}</b> - ${libro.autor} (${libro.anio_publicacion}) ` +
+              `<span class='acciones'>` +
+              `<button onclick='editarLibro(${JSON.stringify(libro)})'>Editar</button>` +
+              `<button onclick='eliminarLibro(${libro.id})'>Eliminar</button>` +
+              `</span>`;
+            lista.appendChild(item);
+          });
+        });
+    }
+
+    document.getElementById('formLibro').onsubmit = function(e) {
+      e.preventDefault();
+      const id = document.getElementById('libroId').value;
+      const nombre = document.getElementById('nombre').value;
+      const autor = document.getElementById('autor').value;
+      const anio_publicacion = parseInt(document.getElementById('anio_publicacion').value);
+      const libro = { nombre, autor, anio_publicacion };
+      const mensajeDiv = document.getElementById('mensaje');
+      mensajeDiv.textContent = '';
+      if (id) {
+        fetch(`http://localhost:5000/libros/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(libro)
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.mensaje) {
+            mensajeDiv.textContent = '✅ Información actualizada correctamente';
+            mensajeDiv.style.color = 'green';
+          } else {
+            mensajeDiv.textContent = '❌ Error al actualizar el libro';
+            mensajeDiv.style.color = 'red';
+          }
+          listarLibros();
+          resetForm();
+        })
+        .catch(() => {
+          mensajeDiv.textContent = '❌ Error de conexión al actualizar';
+          mensajeDiv.style.color = 'red';
+        });
+      } else {
+        fetch('http://localhost:5000/libros', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(libro)
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.id) {
+            mensajeDiv.textContent = '✅ Libro guardado exitosamente';
+            mensajeDiv.style.color = 'green';
+          } else {
+            mensajeDiv.textContent = '❌ Error al guardar el libro';
+            mensajeDiv.style.color = 'red';
+          }
+          listarLibros();
+          resetForm();
+        })
+        .catch(() => {
+          mensajeDiv.textContent = '❌ Error de conexión al guardar';
+          mensajeDiv.style.color = 'red';
+        });
+      }
+    };
+
+    function editarLibro(libro) {
+      document.getElementById('libroId').value = libro.id;
+      document.getElementById('nombre').value = libro.nombre;
+      document.getElementById('autor').value = libro.autor;
+      document.getElementById('anio_publicacion').value = libro.anio_publicacion;
+    }
+
+    function eliminarLibro(id) {
+      if (confirm('¿Seguro que deseas eliminar este libro?')) {
+        fetch(`http://localhost:5000/libros/${id}`, { method: 'DELETE' })
+          .then(res => res.json())
+          .then(() => listarLibros());
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('formLibro').reset();
+      document.getElementById('libroId').value = '';
+    }
+
+    // Cargar lista al iniciar
+    listarLibros();
+  </script>
+</body>
+</html>

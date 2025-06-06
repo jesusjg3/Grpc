@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package libros;
+
+service LibroService {
+  rpc CrearLibro (Libro) returns (Respuesta);
+  rpc ObtenerLibro (LibroId) returns (Libro);
+  rpc ActualizarLibro (Libro) returns (Respuesta);
+  rpc EliminarLibro (LibroId) returns (Respuesta);
+  rpc ListarLibros (Vacio) returns (ListaLibros);
+}
+
+message Libro {
+  int32 id = 1;
+  string nombre = 2;
+  string autor = 3;
+  int32 anio_publicacion = 4;
+}
+
+message LibroId {
+  int32 id = 1;
+}
+
+message Respuesta {
+  string mensaje = 1;
+}
+
+message Vacio {}
+
+message ListaLibros {
+  repeated Libro libros = 1;
+}
